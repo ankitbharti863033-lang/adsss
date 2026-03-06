@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>the local shop - let's grow your business</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  <style>
+    /* --- CSS Variables & Reset --- */
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --bg-color: #f8fafc;
+      --text-color: #334155;
+      --white: #ffffff;
+      --whatsapp-color: #25D366;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    /* --- Header & Navigation --- */
+    header {
+      background: var(--white);
+      padding: 1rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .cart-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      position: relative;
+      color: var(--text-color);
+    }
+
+    #cart-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: red;
+      color: white;
+      font-size: 0.8rem;
+      padding: 2px 6px;
+      border-radius: 50%;
+      font-weight: bold;
+    }
+
+    /* --- Hero Section --- */
+    .hero {
+      height: 80vh;
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                  url('https://i.ibb.co/6cpV0v7d/Digital-Marketing-hero-banners-Pre-Designed-Illustrator-Graphics-Creative-Market.jpg') center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: var(--white);
+      padding: 0 20px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
+
+    .cta-btn {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: 12px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    .cta-btn:hover {
+      background: var(--secondary-color);
+    }
+
+    /* --- Products Section (Carousel) --- */
+    .products-section {
+      padding: 4rem 5%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+
+    .carousel-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 20px;
+      padding-bottom: 20px;
+      /* Hide scrollbar for clean look */
+      -ms-overflow-style: none;  
+      scrollbar-width: none;  
+    }
+    .carousel-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .product-card {
+      flex: 0 0 85%;
+      max-width: 300px;
+      scroll-snap-align: start;
+      background: var(--white);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease;
+    }
+
+    @media (min-width: 768px) {
+      .product-card {
+        flex: 0 0 30%;
+      }
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 15px;
+      text-align: center;
+    }
+
+    .product-price {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: 10px 0;
+      font-size: 1.2rem;
+    }
+
+    .add-to-cart {
+      background: var(--text-color);
+      color: var(--white);
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+
+    .add-to-cart:hover {
+      background: #000;
+    }
+
+    /* --- Cart Modal & Form --- */
+    .cart-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: flex-end;
+      z-index: 1000;
+    }
+
+    .cart-modal {
+      background: var(--white);
+      width: 100%;
+      max-width: 400px;
+      height: 100%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .close-cart {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      align-items: center;
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .cart-total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    .order-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .order-form input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .send-order-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .send-order-btn:hover {
+      background: var(--secondary-color);
+    }
+
+    /* --- WhatsApp Floating Button --- */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--whatsapp-color);
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 35px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      z-index: 100;
+      text-decoration: none;
+      transition: transform 0.3s ease;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+    }
+    
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #0f172a;
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#" class="logo">the local shop</a>
+    <button class="cart-btn" onclick="toggleCart()">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span id="cart-count">0</span>
+    </button>
+  </header>
+
+  <section class="hero">
+    <h1>the local shop</h1>
+    <p>let's grow your business</p>
+    <a href="#products" class="cta-btn">Shop Now</a>
+  </section>
+
+  <section id="products" class="products-section">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="carousel-container" id="product-carousel">
+      </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 the local shop. All rights reserved.</p>
+  </footer>
+
+  <a href="https://wa.me/9999999999" target="_blank" class="whatsapp-float">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <div class="cart-overlay" id="cart-overlay">
+    <div class="cart-modal">
+      <div class="cart-header">
+        <h2>Your Cart</h2>
+        <button class="close-cart" onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div class="cart-items" id="cart-items">
+        </div>
+      
+      <div class="cart-total">
+        Total: $<span id="cart-total-price">0.00</span>
+      </div>
+
+      <form class="order-form" id="order-form">
+        <input type="text" id="cust-name" placeholder="Your Full Name" required>
+        <input type="tel" id="cust-phone" placeholder="Your Phone Number" required>
+        <button type="submit" class="send-order-btn">Send Order</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Product Data
+    const products = [
+      { id: 1, name: "Premium Widget", price: 29.99, img: "https://i.ibb.co/nMPZ3FjR/download-4.jpg" },
+      { id: 2, name: "Business Growth Kit", price: 49.99, img: "https://i.ibb.co/n8NWyGG4/download-3.jpg" },
+      { id: 3, name: "Marketing Tools", price: 19.99, img: "https://i.ibb.co/qMSHLk7G/download-2.jpg" },
+      { id: 4, name: "Pro Starter Pack", price: 39.99, img: "https://i.ibb.co/SZ3RZdc/download-1.jpg" }
+    ];
+
+    let cart = [];
+
+    // Render Products
+    const carousel = document.getElementById('product-carousel');
+    products.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <img src="${product.img}" alt="${product.name}" class="product-img">
+        <div class="product-info">
+          <h3>${product.name}</h3>
+          <p class="product-price">$${product.price.toFixed(2)}</p>
+          <button class="add-to-cart" onclick="addToCart(${product.id})">Add to Cart</button>
+        </div>
+      `;
+      carousel.appendChild(card);
+    });
+
+    // Cart Functions
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      cart.push(product);
+      updateCartUI();
+      // Optional: Visual feedback
+      alert(`${product.name} added to cart!`);
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      // Update badge
+      document.getElementById('cart-count').innerText = cart.length;
+      
+      // Update item list
+      const cartItemsContainer = document.getElementById('cart-items');
+      cartItemsContainer.innerHTML = '';
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        total += item.price;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <span>${item.name}</span>
+          <span>$${item.price.toFixed(2)} 
+            <i class="fa-solid fa-trash" style="color:red; cursor:pointer; margin-left:10px;" onclick="removeFromCart(${index})"></i>
+          </span>
+        `;
+        cartItemsContainer.appendChild(div);
+      });
+
+      // Update total
+      document.getElementById('cart-total-price').innerText = total.toFixed(2);
+    }
+
+    function toggleCart() {
+      const overlay = document.getElementById('cart-overlay');
+      overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    // Close cart when clicking outside the modal
+    document.getElementById('cart-overlay').addEventListener('click', function(e) {
+      if(e.target === this) toggleCart();
+    });
+
+    // --- EmailJS Integration ---
+    // IMPORTANT: Initialize EmailJS with your Public Key
+    (function() {
+      // Replace 'YOUR_PUBLIC_KEY' with your actual EmailJS public key
+      emailjs.init("YOUR_PUBLIC_KEY"); 
+    })();
+
+    document.getElementById('order-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if(cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      
+      // Format cart items for the email body
+      let orderDetails = "Items Ordered:\n";
+      cart.forEach(item => {
+        orderDetails += `- ${item.name} ($${item.price.toFixed(2)})\n`;
+      });
+      const total = document.getElementById('cart-total-price').innerText;
+      orderDetails += `\nTotal: $${total}`;
+
+      // Set up the parameters for the EmailJS template
+      const templateParams = {
+        to_email: 'ankitbharti863033@gmail.com',
+        customer_name: name,
+        customer_phone: phone,
+        order_details: orderDetails
+      };
+
+      const btn = document.querySelector('.send-order-btn');
+      btn.innerText = "Sending...";
+
+      // Send the email using EmailJS
+      // Replace 'YOUR_SERVICE_ID' and 'YOUR_TEMPLATE_ID' with your actual EmailJS credentials
+      emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+        .then(function(response) {
+           alert('SUCCESS! Order sent to the shop owner.');
+           cart = []; // Empty cart
+           updateCartUI();
+           toggleCart(); // Close modal
+           document.getElementById('order-form').reset(); // Clear form
+           btn.innerText = "Send Order";
+        }, function(error) {
+           alert('FAILED to send order. Please check your EmailJS keys or try again later.');
+           console.log('Error:', error);
+           btn.innerText = "Send Order";
+        });
+    });
+  </script>
+</body>
+</html>
